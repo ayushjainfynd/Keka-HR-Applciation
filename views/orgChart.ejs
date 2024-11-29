@@ -337,19 +337,6 @@ myDiagram.addDiagramListener('InitialLayoutCompleted', (e) => {
                             .bind('text', 'title')
                             .theme('stroke', 'subtext')
                             .theme('font', 'normal'),
-
-                            // Direct Reportees
-                            new go.TextBlock({
-                                row: 2, // Place in the first column
-                                font: '12px sans-serif',
-                                stroke: 'subtext',
-                                alignment: go.Spot.Left,
-                            })
-                                .bind('text', 'directReportees', (val) =>
-                                val !== undefined && val !== null ? `Direct Reportees: ${val}` : `Direct Reportees: 0`
-                                ),
-
-
                         ),
                         new go.Panel(go.Panel.Spot, { isClipping: true, column: 1 })
                         .add(

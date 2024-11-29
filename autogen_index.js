@@ -5,7 +5,9 @@
 
 // Import the required modules
 import express from 'express';
+import { fileURLToPath } from 'url';
 import bodyParser from 'body-parser';
+import path from 'path';
 import { managerDataHandler } from './submodules/managerData.js';
 import { syncKekaDataHandler } from './submodules/syncKekaData.js'
 import { frontPage } from "./submodules/frontPage.js";
@@ -31,6 +33,11 @@ app.use(bodyParser.text())
 // parse raw data
 app.use(bodyParser.raw())
 
+// Define __dirname for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 // Use the request handler function for all routes
 app.all('/', frontPage);

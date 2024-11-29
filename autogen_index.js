@@ -14,7 +14,7 @@ import { getBusinessUnitsHandler } from './submodules/getAllBusinessUnitList.js'
 import { getDepartmentsHandler } from './submodules/getAllDepartmentList.js';
 import { getAllConsultantEmployees } from './submodules/getAllConsultantEmployees.js';
 import { filteredEmployeeDataHandler } from './submodules/fetchFilteredEmployeeData.js';
-
+import { getOrgChartHandler } from './submodules/getOrgChartHandler.js';
 
 // Define the port to listen on
 const PORT = process.env.BOLT_APPLICATION_PORT || 3000;
@@ -41,7 +41,7 @@ app.all('/get-all-business-units', getBusinessUnitsHandler);
 app.all('/get-all-departments', getDepartmentsHandler);
 app.all('/get-consultant-employees', getAllConsultantEmployees);
 app.all('/get-filtered-employees', filteredEmployeeDataHandler);
-
+app.all('/get-org-chart',getOrgChartHandler);
 
 // Start the server and listen on the defined port
 app.listen(PORT, () => {

@@ -7,12 +7,14 @@ async function fetchAllManagers() {
     try {
       // Fetch distinct managers from the database
       const managers = await employeeRepository
-        .createQueryBuilder('employee')
-        .select(['employee.keka_display_name', 'employee.keka_emp_email'])
-        .where('employee.keka_emp_email IS NOT NULL')
-        .andWhere('employee.keka_reporting_manager_email IS NOT NULL')
-        .distinct(true)
-        .getMany();
+      .createQueryBuilder('employee')
+      .select(['employee.keka_display_name', 'employee.keka_emp_email'])
+      .where('employee.keka_emp_email IN (' +
+        'SELECT DISTINCT sub.keka_reporting_manager_email ' +
+        'FROM employee_data sub' +
+      ')')
+      .andWhere('employee.keka_employment_status = :status', { status: 0 })
+      .getMany();
   
       return managers.map(manager => ({
         name: manager.keka_display_name,

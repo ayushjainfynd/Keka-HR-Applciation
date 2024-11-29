@@ -60,7 +60,7 @@ async function fetchManagerHierarchyByName(managerName) {
 }
 
 // Function to filter employees based on the criteria
-async function filterEmployees(hierarchyData, businessUnit, department, jobTitle) {
+async function filterEmployees(hierarchyData, businessUnit, department, jobTitle, kekaEmploymentStatus) {
   const employeeRepository = AppDataSource.getRepository(EmployeeData);
 
   // Filter the hierarchy data based on provided criteria
@@ -80,6 +80,7 @@ async function filterEmployees(hierarchyData, businessUnit, department, jobTitle
           'keka_business_unit',
           'keka_department',
           'keka_exit_status',
+          'keka_employment_status',
           'updatedAt'
         ],
       });
@@ -104,6 +105,10 @@ async function filterEmployees(hierarchyData, businessUnit, department, jobTitle
           }
         }
 
+        if (employee.keka_employment_status !== kekaEmploymentStatus) {
+            match = false;
+          }
+
         return match;
       });
 
@@ -119,7 +124,7 @@ async function filterEmployees(hierarchyData, businessUnit, department, jobTitle
 // Endpoint to fetch filtered employee data under a manager
 async function filteredEmployeeDataHandler(req, res) {
   try {
-    const { managerName, businessUnit, department, jobTitle } = req.body;
+    const { managerName, businessUnit, department, jobTitle, kekaEmploymentStatus } = req.body;
 
     if (!managerName) {
       return res.status(400).json({ error: "Manager name is required" });
@@ -133,7 +138,7 @@ async function filteredEmployeeDataHandler(req, res) {
     }
 
     // Filter the employees under the hierarchy
-    const filteredEmployees = await filterEmployees(hierarchyData, businessUnit, department, jobTitle);
+    const filteredEmployees = await filterEmployees(hierarchyData, businessUnit, department, jobTitle, kekaEmploymentStatus);
 
     if (filteredEmployees.length === 0) {
       return res.status(404).json({ message: "No employees found under this manager with the given filters" });
@@ -148,7 +153,8 @@ async function filteredEmployeeDataHandler(req, res) {
         businessUnit: employee.keka_business_unit,
         department: employee.keka_department,
         kekaExitStatus: employee.keka_exit_status,
-        lastUpdatedAt: employee.updatedAt
+        lastUpdatedAt: employee.updatedAt,
+        kekaEmploymentStatus: employee.keka_employment_status
       })),
     });
   } catch (error) {

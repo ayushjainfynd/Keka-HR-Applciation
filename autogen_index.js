@@ -35,7 +35,7 @@ app.use(bodyParser.raw())
 // Use the request handler function for all routes
 app.all('/', frontPage);
 app.all('/get-sync-data', syncKekaDataHandler);
-app.all('/get-managers', managerDataHandler);
+app.all('/get-manager', managerDataHandler);
 app.all('/get-all-managers-list',getManagersListHandler);
 app.all('/get-all-business-units', getBusinessUnitsHandler);
 app.all('/get-all-departments', getDepartmentsHandler);

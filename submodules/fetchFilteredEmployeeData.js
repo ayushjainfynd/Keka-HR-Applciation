@@ -2,22 +2,22 @@ import { AppDataSource } from '../db/index.js';
 import { EmployeeData } from '../db/models/employeeData.js';
 
 // Function to fetch all managers under a specific name in the hierarchy
-async function fetchManagerHierarchyByName(managerName) {
+async function fetchManagerHierarchyByName(managerId) {
   const employeeRepository = AppDataSource.getRepository(EmployeeData);
   const result = [];
   const visited = new Set(); // To track unique emails and avoid duplicates
   let initialEmail = null; // Store the initial manager's email to exclude later
 
   // Function to resolve manager's email from their display name
-  async function resolveEmail(name) {
+  async function resolveEmail(id) {
     try {
       const manager = await employeeRepository.findOne({
-        where: { keka_display_name: name },
-        select: ['keka_emp_email'],
+        where: { keka_id: id },
+        select: ['keka_emp_email']
       });
       return manager?.keka_emp_email || null;
     } catch (error) {
-      console.error(`Error resolving email for name: ${name}`, error.message);
+      console.error(`Error resolving email for name: ${id}`, error.message);
       return null;
     }
   }
@@ -43,10 +43,10 @@ async function fetchManagerHierarchyByName(managerName) {
   }
 
   // Resolve the initial email for the given manager name
-  initialEmail = await resolveEmail(managerName);
+  initialEmail = await resolveEmail(managerId);
 
   if (!initialEmail) {
-    throw new Error(`No email found for manager name: ${managerName}`);
+    throw new Error(`No email found for manager with id : ${managerId}`);
   }
 
   // Start fetching the hierarchy
@@ -75,6 +75,7 @@ async function filterEmployees(hierarchyData, businessUnit, department, jobTitle
           'keka_exit_status',
           'keka_employment_status',
           'updatedAt',
+          'keka_reporting_manager_email'
         ],
       });
 
@@ -102,16 +103,16 @@ async function filterEmployees(hierarchyData, businessUnit, department, jobTitle
 // Endpoint to fetch filtered employee data under a manager
 async function filteredEmployeeDataHandler(req, res) {
   try {
-    const { managerName, businessUnit, department, jobTitle, kekaEmploymentStatus } = req.body;
+    const { managerId, businessUnit, department, jobTitle, kekaEmploymentStatus } = req.body;
 
-    if (!managerName) {
-      return res.status(400).json({ error: "Manager name is required" });
+    if (!managerId) {
+      return res.status(400).json({ error: "Manager is required" });
     }
 
-    const hierarchyData = await fetchManagerHierarchyByName(managerName);
+    const hierarchyData = await fetchManagerHierarchyByName(managerId);
 
     if (hierarchyData.length === 0) {
-      return res.status(404).json({ message: "No managers found under this name" });
+      return res.status(404).json({ message: "No reportees found under the manager" });
     }
 
     const filteredEmployees = await filterEmployees(hierarchyData, businessUnit, department, jobTitle, kekaEmploymentStatus);
@@ -121,7 +122,7 @@ async function filteredEmployeeDataHandler(req, res) {
     }
 
     return res.status(200).json({
-      manager: managerName,
+      manager: managerId,
       employees: filteredEmployees.map(employee => ({
         displayName: employee.keka_display_name,
         email: employee.keka_emp_email,
@@ -131,6 +132,7 @@ async function filteredEmployeeDataHandler(req, res) {
         kekaExitStatus: employee.keka_exit_status,
         lastUpdatedAt: employee.updatedAt,
         kekaEmploymentStatus: employee.keka_employment_status,
+        kekaReportingManagerEmail: employee.keka_reporting_manager_email
       })),
     });
   } catch (error) {

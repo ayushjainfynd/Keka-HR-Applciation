@@ -29,7 +29,7 @@ async function fetchManagerHierarchyByName(managerName) {
         // Fetch employees reporting to the given email
         const managers = await employeeRepository.find({
           where: { keka_reporting_manager_email: email },
-          select: ['keka_display_name', 'keka_emp_email', 'keka_reporting_manager_email'],
+          select: ['keka_id','keka_display_name', 'keka_emp_email', 'keka_reporting_manager_email'],
         });
   
         // Filter out already visited emails and add them to the result

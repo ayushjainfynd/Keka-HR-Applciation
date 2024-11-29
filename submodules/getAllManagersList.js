@@ -8,7 +8,7 @@ async function fetchAllManagers() {
       // Fetch distinct managers from the database
       const managers = await employeeRepository
       .createQueryBuilder('employee')
-      .select(['employee.keka_display_name', 'employee.keka_emp_email'])
+      .select(['employee.keka_id','employee.keka_display_name', 'employee.keka_emp_email'])
       .where('employee.keka_emp_email IN (' +
         'SELECT DISTINCT sub.keka_reporting_manager_email ' +
         'FROM employee_data sub' +
@@ -17,6 +17,7 @@ async function fetchAllManagers() {
       .getMany();
   
       return managers.map(manager => ({
+        id: manager.keka_id,
         name: manager.keka_display_name,
         email: manager.keka_emp_email
       }));
